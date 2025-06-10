@@ -99,7 +99,7 @@ class OllamaEmbeddings:
             response.raise_for_status()
             return response.json()["embedding"]
         except Exception as e:
-            print(f"Error getting embedding: {e}")
+            # Error getting embedding
             # Return a zero vector as fallback
             return [0.0] * 768  # Assuming 768-dim embeddings, adjust if different
     
@@ -144,12 +144,9 @@ class VectorStore:
         if os.path.exists(self.index_path):
             try:
                 self.index = faiss.read_index(self.index_path)
-                print(f"Loaded FAISS index from {self.index_path}")
             except Exception as e:
-                print(f"Error loading index: {e}. Creating new index.")
                 self.index = faiss.IndexFlatL2(self.embedding_dim)
         else:
-            print(f"Creating new FAISS index with dimension {self.embedding_dim}")
             self.index = faiss.IndexFlatL2(self.embedding_dim)
     
     def _initialize_metadata(self):
@@ -158,12 +155,9 @@ class VectorStore:
             try:
                 with open(self.metadata_path, 'r') as f:
                     self.metadata = json.load(f)
-                print(f"Loaded metadata from {self.metadata_path}")
             except Exception as e:
-                print(f"Error loading metadata: {e}. Creating new metadata store.")
                 self.metadata = {"chunks": [], "id_map": {}}
         else:
-            print("Creating new metadata store")
             self.metadata = {"chunks": [], "id_map": {}}
     
     def _save_index(self):

@@ -17,7 +17,6 @@ class MemoryStore:
         else:
             self.db_path = db_path
             
-        print(f"Using database at: {self.db_path}")
         self._initialize_db()
         
         # Initialize vector store
@@ -68,10 +67,8 @@ class MemoryStore:
         if self.vector_store:
             try:
                 self.vector_store.add_text(memory_id, content, metadata)
-                print(f"Added memory {memory_id} to vector store")
             except Exception as e:
-                print(f"Failed to add to vector store: {e}")
-        
+                pass  # Silently handle vector store errors
         return memory_id
     
     def retrieve_memories(self, query: str, limit: int = 5, use_vector: bool = True) -> List[Dict[str, Any]]:
@@ -84,7 +81,7 @@ class MemoryStore:
         # Try vector search first if available and requested
         if self.vector_store and use_vector:
             try:
-                print(f"Performing vector search for: '{query}'")
+                # Performing vector search
                 vector_results = self.vector_store.search(query, limit)
                 
                 # Convert to standard format
@@ -98,15 +95,17 @@ class MemoryStore:
                     })
                 
                 if results:
-                    print(f"Vector search found {len(results)} results")
+                    # Vector search found results
                     return results
                 else:
-                    print("Vector search returned no results, falling back to text search")
+                    # Vector search returned no results, falling back to text search
+                    pass
             except Exception as e:
-                print(f"Vector search failed: {e}, falling back to text search")
+                # Vector search failed, falling back to text search
+                pass
         
         # Fall back to text search
-        print(f"Performing text search for: '{query}'")
+        # Performing text search
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
@@ -125,7 +124,7 @@ class MemoryStore:
             })
         
         conn.close()
-        print(f"Text search found {len(results)} results")
+        # Text search found results
         return results
     
     def update_memory(self, memory_id: str, content: str = None, metadata: Dict[str, Any] = None) -> bool:
@@ -177,9 +176,9 @@ class MemoryStore:
                 elif metadata is not None:
                     # If only metadata changed, just update metadata
                     self.vector_store.update_text(memory_id, None, new_metadata)
-                print(f"Updated memory {memory_id} in vector store")
+                # Updated memory in vector store
             except Exception as e:
-                print(f"Failed to update vector store: {e}")
+                pass  # Silently handle vector store update errors
         
         return True
 
@@ -197,21 +196,22 @@ embedding_model = os.environ.get("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
 
 try:
     import requests
-    print(f"Checking Ollama at {ollama_url}...")
     response = requests.get(f"{ollama_url}/api/tags")
     if response.status_code == 200:
         models = response.json().get("models", [])
         model_names = [model.get("name", "").split(":")[0] for model in models]
         
         if embedding_model in model_names or f"{embedding_model}:latest" in model_names:
-            print(f"✅ Ollama found with {embedding_model} model available")
             ollama_available = True
         else:
-            print(f"⚠️ Ollama found but {embedding_model} model not available, using text search only")
+            # Ollama found but embedding model not available, using text search only
+            pass
     else:
-        print(f"⚠️ Ollama API returned error {response.status_code}, using text search only")
+        # Ollama API returned error, using text search only
+        pass
 except Exception as e:
-    print(f"⚠️ Ollama check failed: {e}, using text search only")
+    # Ollama check failed, using text search only
+    pass
 
 # Initialize vector store if Ollama is available
 vector_store = None
@@ -222,11 +222,12 @@ if ollama_available:
             embedding_model=embedding_model,
             ollama_url=ollama_url
         )
-        print("✅ Vector store initialized successfully")
     except Exception as e:
-        print(f"⚠️ Failed to initialize vector store: {e}, using text search only")
+        # Failed to initialize vector store, using text search only
+        pass
 else:
-    print("⚠️ Vector search not available, using text search only")
+    # Vector search not available, using text search only
+    pass
 
 # Initialize the memory store
 memory_store = MemoryStore(vector_store=vector_store)
@@ -271,7 +272,7 @@ def store_memory(content: str, tags: Optional[List[str]] = None,
     - store_memory("User loves hiking in the mountains", ["personal", "hobbies"], "conversation", 0.7)
     - store_memory("API key expires on Dec 31st", ["technical", "urgent"], "documentation", 0.9)
     """
-    print(f"Storing memory: '{content[:50]}...' with tags: {tags}")
+    # Storing memory
     metadata = {}
     if tags:
         metadata["tags"] = tags
@@ -281,7 +282,7 @@ def store_memory(content: str, tags: Optional[List[str]] = None,
         metadata["importance"] = importance
     
     memory_id = memory_store.store_memory(content, metadata)
-    print(f"Memory stored with ID: {memory_id}")
+    # Memory stored
     return memory_id
 
 @mcp.tool
@@ -320,7 +321,7 @@ def update_memory(memory_id: str, content: Optional[str] = None,
     - update_memory("mem_1234567890123", tags=["programming", "preferences", "typescript"])
     - update_memory("mem_1234567890123", importance=0.9)
     """
-    print(f"Updating memory {memory_id}")
+    # Updating memory
     metadata = {}
     if tags:
         metadata["tags"] = tags
@@ -328,7 +329,7 @@ def update_memory(memory_id: str, content: Optional[str] = None,
         metadata["importance"] = importance
     
     success = memory_store.update_memory(memory_id, content, metadata)
-    print(f"Memory update {'succeeded' if success else 'failed'}")
+    # Memory update completed
     return success
 
 @mcp.resource("memory://{query}")
@@ -367,9 +368,9 @@ def get_memories(query: str, limit: Optional[int] = 5) -> List[Dict[str, Any]]:
     Note: This uses the URI pattern memory://{query} where {query} is automatically
     extracted from the resource path.
     """
-    print(f"Resource requested for query: '{query}'")
+    # Resource requested
     results = memory_store.retrieve_memories(query, limit)
-    print(f"Returning {len(results)} results")
+    # Returning results
     return results
 
 @mcp.tool
@@ -411,7 +412,7 @@ def search_memories(query: str, limit: Optional[int] = 5,
     
     Note: This tool provides more detailed search control than the memory:// resource.
     """
-    print(f"Searching memories for: '{query}', use_vector={use_vector}")
+    # Searching memories
     results = memory_store.retrieve_memories(query, limit, use_vector)
     
     # Add search information
@@ -420,7 +421,7 @@ def search_memories(query: str, limit: Optional[int] = 5,
         if "score" not in result:
             result["score"] = 0.0
     
-    print(f"Search returned {len(results)} results")
+    # Search completed
     return results
 
 @mcp.prompt
@@ -444,22 +445,8 @@ Please create a concise summary that captures the key points and patterns:
 
 Summary:"""
 
-    print(f"Generated summarization prompt for {len(memories)} memories")
+    # Generated summarization prompt
     return prompt
-
-# Print capabilities at startup
-print("\nCapabilities:")
-if vector_store:
-    print("✅ Semantic search with FAISS and Ollama embeddings")
-    print(f"✅ Using {embedding_model} model for embeddings")
-    print("✅ Smart text chunking for better retrieval")
-else:
-    print("⚠️ Using basic text search (Ollama embeddings not available)")
-
-print("✅ Memory storage with metadata")
-print("✅ Memory updates and retrieval")
-print("✅ Persistent storage in SQLite and FAISS")
-print("\nServer module loaded!")
 
 if __name__ == "__main__":
     mcp.run()  # Start the FastMCP server
