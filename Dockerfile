@@ -1,0 +1,33 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install dependencies for FAISS
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY src/ src/
+COPY docs/ docs/
+COPY README.md .
+
+# Create a volume for persistent storage
+VOLUME /app/data
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV MCP_DATA_DIR=/app/data
+ENV OLLAMA_API_URL=http://host.docker.internal:11434
+ENV OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+
+# Expose the MCP server port
+EXPOSE 6274
+
+# Run the memory server using FastMCP CLI with streamable-http transport
+CMD ["fastmcp", "run", "src/memory_server.py", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "6274"]

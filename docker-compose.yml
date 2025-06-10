@@ -1,0 +1,15 @@
+services:
+  memory-mcp:
+    build: .
+    container_name: local-context-memory-mcp
+    ports:
+      - "6274:6274"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - MCP_SERVER_NAME=LocalContextMemory
+      - OLLAMA_API_URL=http://host.docker.internal:11434
+      - OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
