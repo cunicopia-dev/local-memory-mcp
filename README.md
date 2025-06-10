@@ -2,6 +2,77 @@
 
 A persistent memory system for AI agents using the Model Context Protocol (MCP) with semantic search capabilities.
 
+## Architecture
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        CD[Claude Desktop]
+        AI[AI Agent]
+    end
+    
+    subgraph "MCP Server"
+        FM[FastMCP Server]
+        MS[Memory Store]
+        SC[Smart Chunker]
+    end
+    
+    subgraph "Storage Layer"
+        SQL[(SQLite Database)]
+        VS[Vector Store]
+        FAISS[(FAISS Index)]
+    end
+    
+    subgraph "External Services"
+        OL[Ollama API]
+        EM[nomic-embed-text]
+    end
+    
+    CD -->|MCP Protocol| FM
+    AI -->|HTTP/JSON-RPC| FM
+    
+    FM --> MS
+    MS --> SC
+    
+    MS -->|Store Metadata| SQL
+    MS -->|Vector Search| VS
+    
+    VS --> FAISS
+    VS -->|Generate Embeddings| OL
+    OL --> EM
+    
+    SC -->|Chunk Text| MS
+    
+    classDef client fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#0d47a1
+    classDef server fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
+    classDef storage fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#1b5e20
+    classDef external fill:#fff8e1,stroke:#f57c00,stroke-width:2px,color:#e65100
+    
+    class CD,AI client
+    class FM,MS,SC server
+    class SQL,VS,FAISS storage
+    class OL,EM external
+```
+
+## Demo
+
+See the local memory system in action:
+
+### Saving Memories
+![Saving a memory](docs/pictures/save-memory.png)
+
+*The AI agent stores contextual information for future retrieval*
+
+### Retrieving Memories  
+![Retrieving memories](docs/pictures/retrieve-memory.png)
+
+*Semantic search finds relevant memories based on context*
+
+### Memory-Powered Intelligence
+![Proof it works](docs/pictures/proof-it-works.png)
+
+*The agent synthesizes retrieved memories to provide informed responses*
+
 ## Features
 
 - **Semantic Search**: Uses Ollama embeddings with FAISS for intelligent memory retrieval
@@ -66,58 +137,6 @@ search_memories("programming preferences", 5, true)
 
 // Get memories via resource
 // Access: memory://programming
-```
-
-## Architecture
-
-```mermaid
-graph TB
-    subgraph "Client Layer"
-        CD[Claude Desktop]
-        AI[AI Agent]
-    end
-    
-    subgraph "MCP Server"
-        FM[FastMCP Server]
-        MS[Memory Store]
-        SC[Smart Chunker]
-    end
-    
-    subgraph "Storage Layer"
-        SQL[(SQLite Database)]
-        VS[Vector Store]
-        FAISS[(FAISS Index)]
-    end
-    
-    subgraph "External Services"
-        OL[Ollama API]
-        EM[nomic-embed-text]
-    end
-    
-    CD -->|MCP Protocol| FM
-    AI -->|HTTP/JSON-RPC| FM
-    
-    FM --> MS
-    MS --> SC
-    
-    MS -->|Store Metadata| SQL
-    MS -->|Vector Search| VS
-    
-    VS --> FAISS
-    VS -->|Generate Embeddings| OL
-    OL --> EM
-    
-    SC -->|Chunk Text| MS
-    
-    classDef client fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#0d47a1
-    classDef server fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#4a148c
-    classDef storage fill:#e8f5e8,stroke:#388e3c,stroke-width:2px,color:#1b5e20
-    classDef external fill:#fff8e1,stroke:#f57c00,stroke-width:2px,color:#e65100
-    
-    class CD,AI client
-    class FM,MS,SC server
-    class SQL,VS,FAISS storage
-    class OL,EM external
 ```
 
 **Components:**
