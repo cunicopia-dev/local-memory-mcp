@@ -334,14 +334,38 @@ def update_memory(memory_id: str, content: Optional[str] = None,
 @mcp.resource("memory://{query}")
 def get_memories(query: str, limit: Optional[int] = 5) -> List[Dict[str, Any]]:
     """
-    Retrieve memories relevant to the query.
+    Retrieve memories relevant to a search query using semantic search.
+    
+    This resource performs intelligent semantic search across all stored memories,
+    finding relevant content even if the exact words don't match. It uses vector
+    embeddings to understand meaning and context.
     
     Parameters:
-    - query: The search query
-    - limit: Maximum number of memories to return
+    - query (str): The search query to find relevant memories. This can be:
+                  * Natural language questions: "What does the user like to do?"
+                  * Keywords: "python programming preferences" 
+                  * Concepts: "work schedule" or "personal information"
+                  * Specific topics: "machine learning projects"
+    
+    - limit (int, optional): Maximum number of memories to return (default: 5).
+                            Higher values return more results but may include less relevant ones.
+                            Recommended range: 3-10.
     
     Returns:
-    - List of relevant memory chunks
+    List[Dict[str, Any]]: A list of memory objects, each containing:
+        - id (str): Unique memory identifier
+        - content (str): The stored memory content
+        - metadata (dict): Associated metadata including tags, source, importance, timestamps
+        - score (float): Relevance score (higher = more relevant)
+    
+    Example queries:
+    - "What programming languages does the user prefer?"
+    - "meeting schedule"
+    - "personal preferences"
+    - "technical documentation"
+    
+    Note: This uses the URI pattern memory://{query} where {query} is automatically
+    extracted from the resource path.
     """
     print(f"Resource requested for query: '{query}'")
     results = memory_store.retrieve_memories(query, limit)
@@ -352,15 +376,40 @@ def get_memories(query: str, limit: Optional[int] = 5) -> List[Dict[str, Any]]:
 def search_memories(query: str, limit: Optional[int] = 5, 
                    use_vector: Optional[bool] = True) -> List[Dict[str, Any]]:
     """
-    Search for memories using semantic search.
+    Search for memories using advanced semantic search with optional fallback.
+    
+    This tool provides more control over the search process compared to the resource.
+    It allows you to choose between semantic vector search and traditional text search,
+    and returns additional metadata about the search process.
     
     Parameters:
-    - query: The search query
-    - limit: Maximum number of memories to return
-    - use_vector: Whether to use vector search (if available) or fall back to text search
+    - query (str): The search query to find relevant memories. Examples:
+                  * "What does the user like for breakfast?"
+                  * "programming projects and preferences"
+                  * "work meetings this week"
+                  * "personal goals and aspirations"
+    
+    - limit (int, optional): Maximum number of memories to return (default: 5).
+                            Range: 1-20. Higher values may include less relevant results.
+    
+    - use_vector (bool, optional): Whether to use semantic vector search (default: True).
+                                  * True: Uses AI embeddings for semantic understanding
+                                  * False: Uses traditional keyword-based text search
+                                  If vector search fails, automatically falls back to text search.
     
     Returns:
-    - List of relevant memory chunks with similarity scores
+    List[Dict[str, Any]]: A list of memory objects with search metadata:
+        - id (str): Unique memory identifier
+        - content (str): The stored memory content  
+        - metadata (dict): Memory metadata (tags, source, importance, timestamps)
+        - score (float): Relevance/similarity score
+        - query (str): The original search query (for reference)
+    
+    Example usage:
+    - search_memories("user preferences", 3, True)  # Semantic search, top 3 results
+    - search_memories("python", 10, False)  # Text search for "python", up to 10 results
+    
+    Note: This tool provides more detailed search control than the memory:// resource.
     """
     print(f"Searching memories for: '{query}', use_vector={use_vector}")
     results = memory_store.retrieve_memories(query, limit, use_vector)
@@ -414,5 +463,3 @@ print("\nServer module loaded!")
 
 if __name__ == "__main__":
     mcp.run()  # Start the FastMCP server
-
-# Note: We don't call mcp.run() here - it will be run by the FastMCP CLI
