@@ -233,8 +233,7 @@ else:
 memory_store = MemoryStore(vector_store=vector_store)
 
 @mcp.tool
-def store_memory(content: str, tags: Optional[List[str]] = None, 
-                 source: Optional[str] = None, importance: Optional[float] = None) -> str:
+def store_memory(content: str, source: Optional[str] = None, importance: Optional[float] = None) -> str:
     """
     Store a new memory chunk in the persistent memory system.
     
@@ -248,12 +247,6 @@ def store_memory(content: str, tags: Optional[List[str]] = None,
                     * "Meeting scheduled for Tuesday at 3pm about project planning"
                     * "User's favorite color is blue and they work in San Francisco"
     
-    - tags (List[str], optional): A list of category tags to help organize memories. 
-                                 Use lowercase strings without spaces. Examples:
-                                 * ["personal_info", "preferences"]
-                                 * ["work", "meetings", "urgent"]
-                                 * ["technology", "programming", "python"]
-                                 
     - source (str, optional): Where this memory originated from. Examples:
                               * "conversation"
                               * "document"  
@@ -269,13 +262,11 @@ def store_memory(content: str, tags: Optional[List[str]] = None,
     str: A unique memory ID that can be used to update or reference this memory later.
     
     Example usage:
-    - store_memory("User loves hiking in the mountains", ["personal", "hobbies"], "conversation", 0.7)
-    - store_memory("API key expires on Dec 31st", ["technical", "urgent"], "documentation", 0.9)
+    - store_memory("User loves hiking in the mountains", "conversation", 0.7)
+    - store_memory("API key expires on Dec 31st", "documentation", 0.9)
     """
     # Storing memory
     metadata = {}
-    if tags:
-        metadata["tags"] = tags
     if source:
         metadata["source"] = source
     if importance is not None:
@@ -286,13 +277,12 @@ def store_memory(content: str, tags: Optional[List[str]] = None,
     return memory_id
 
 @mcp.tool
-def update_memory(memory_id: str, content: Optional[str] = None, 
-                  tags: Optional[List[str]] = None, importance: Optional[float] = None) -> bool:
+def update_memory(memory_id: str, content: Optional[str] = None, importance: Optional[float] = None) -> bool:
     """
     Update an existing memory chunk with new information.
     
     This tool allows you to modify previously stored memories. You can update the content,
-    add new tags, or change the importance level. If updating content, the memory will be
+change the importance level. If updating content, the memory will be
     re-indexed for semantic search.
     
     Parameters:
@@ -303,11 +293,6 @@ def update_memory(memory_id: str, content: Optional[str] = None,
                               If provided, this completely replaces the old content.
                               Example: "User prefers React over Vue for frontend projects"
     
-    - tags (List[str], optional): New tags to add or replace existing tags.
-                                 Use lowercase strings without spaces. Examples:
-                                 * ["personal_info", "updated"]
-                                 * ["work", "preferences", "frontend"]
-                                 
     - importance (float, optional): New importance score from 0.0 to 1.0.
                                    * 0.0-0.3 = Low importance
                                    * 0.4-0.7 = Medium importance  
@@ -318,13 +303,10 @@ def update_memory(memory_id: str, content: Optional[str] = None,
     
     Example usage:
     - update_memory("mem_1234567890123", content="User now prefers TypeScript over JavaScript")
-    - update_memory("mem_1234567890123", tags=["programming", "preferences", "typescript"])
     - update_memory("mem_1234567890123", importance=0.9)
     """
     # Updating memory
     metadata = {}
-    if tags:
-        metadata["tags"] = tags
     if importance is not None:
         metadata["importance"] = importance
     
@@ -356,7 +338,7 @@ def get_memories(query: str, limit: Optional[int] = 5) -> List[Dict[str, Any]]:
     List[Dict[str, Any]]: A list of memory objects, each containing:
         - id (str): Unique memory identifier
         - content (str): The stored memory content
-        - metadata (dict): Associated metadata including tags, source, importance, timestamps
+        - metadata (dict): Associated metadata including source, importance, timestamps
         - score (float): Relevance score (higher = more relevant)
     
     Example queries:
@@ -402,7 +384,7 @@ def search_memories(query: str, limit: Optional[int] = 5,
     List[Dict[str, Any]]: A list of memory objects with search metadata:
         - id (str): Unique memory identifier
         - content (str): The stored memory content  
-        - metadata (dict): Memory metadata (tags, source, importance, timestamps)
+        - metadata (dict): Memory metadata (source, importance, timestamps)
         - score (float): Relevance/similarity score
         - query (str): The original search query (for reference)
     
