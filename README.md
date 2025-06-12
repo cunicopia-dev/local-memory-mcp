@@ -353,6 +353,9 @@ brew install pgvector
 # cd pgvector
 # make && make install
 
+# PLEASE NOTE: We create a user and basic password here, please change this if you want to host it locally
+psql < sql/create_user.sql
+
 # Set up database
 psql -U postgres -f sql/setup_database.sql
 
