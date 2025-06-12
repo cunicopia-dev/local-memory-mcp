@@ -2,8 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io/)  
+[![Docker Support](https://img.shields.io/badge/Docker-Support%3A%20Coming%20Soon-orange.svg)](https://www.docker.com/)
 
 Ever wanted the ChatGPT memory feature but **across all your LLMs** and stored on **your own hardware**? Ever hate how there's a **limit to how many memories** ChatGPT can store, and that you **can't segment your memories** into different domains? 
 
@@ -16,6 +16,7 @@ A production-ready persistent memory system for AI agents using the [Model Conte
 ## Table of Contents
 
 - [Why This Matters](#why-this-matters)
+- [Design Principles](#design-principles)
 - [Choose Your Implementation](#choose-your-implementation)
 - [Tools & Capabilities](#tools--capabilities)
   - [Available Tools](#available-tools)
@@ -42,6 +43,20 @@ A production-ready persistent memory system for AI agents using the [Model Conte
 - 🏢 **Organizes by domain** - Separate contexts for work, health, personal life (PostgreSQL)
 - 🔒 **Stays private** - All data stored locally under your control
 - ⚡ **Works immediately** - Drop-in compatibility with Claude Desktop and MCP clients
+
+### Design Principles
+
+- **Modularity First**  
+  Components are decoupled for easy extension and substitution
+
+- **Local-First**  
+  Your data stays on your machine unless you choose otherwise
+
+- **MCP-Native**  
+  Built with interoperability and future agent compatibility in mind
+
+- **Zero External Dependencies**  
+  No SaaS or cloud lock-in
 
 ## Choose Your Implementation
 
@@ -277,7 +292,7 @@ graph TB
 - **Semantic Search**: Uses Ollama embeddings for intelligent memory retrieval
 - **Smart Chunking**: Automatically breaks down long text for better search results  
 - **MCP Standard**: Full MCP protocol compliance for Claude Desktop integration
-- **Docker Ready**: Simple containerized deployment
+- **Docker Ready**: (*COMING SOON - not quite running yet*) Simple containerized deployment
 - **Fallback Search**: Automatic fallback to text search when vector search unavailable
 
 ### SQLite + FAISS Specific
@@ -325,7 +340,7 @@ python src/postgres_memory_server.py
 ```
 
 ### Prerequisites
-- Docker and Docker Compose (for Docker deployment)
+- Docker (COMING SOON - Docker not running quite yet)
 - Ollama with `nomic-embed-text` model (optional but recommended)
 
 ### Setup
@@ -465,7 +480,8 @@ pip install -r requirements.pgvector.txt
 python src/postgres_memory_server.py
 ```
 
-### Docker
+### Docker - Coming soon
+Docker is not running quite yet. Run at your own risk. Fix it for me if you have time, otherwise I'll get to it soon.
 ```bash
 # SQLite version
 docker build -f Dockerfile.sqlite_version -t local-memory-mcp:sqlite_version .
@@ -488,9 +504,7 @@ See the local memory system in action:
 ### Example 1
 ![Example 1](docs/pictures/memory_example1.png)
 
-*The AI agent stores contextual information for future retrieval*
 
 ### Example 2 
 ![Example 2](docs/pictures/memory_example2.png)
 
-*Semantic search finds relevant memories based on context*
