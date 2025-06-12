@@ -26,9 +26,14 @@ A production-ready persistent memory system for AI agents using the [Model Conte
   - [PostgreSQL + pgvector Implementation](#postgresql--pgvector-implementation-new)
 - [Features](#features)
 - [Quick Start](#quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Ollama Setup](#ollama-setup-optional-but-recommended)
+  - [Setup & Installation](#setup--installation)
+- [Examples](#examples)
 - [Components](#components)
 - [Configuration](#configuration)
 - [Development](#development)
+  - [Docker](#docker)
 - [Demo](#demo)
 - [License](#license)
 
@@ -371,16 +376,33 @@ python src/postgres_memory_server.py
 
 ### Prerequisites
 - Docker (for containerized deployment) or Python 3.12+ (for local installation)
-- Ollama with `nomic-embed-text` model (optional but recommended)
+- Ollama with `nomic-embed-text` model (optional but recommended for enhanced semantic search)
 
-### Setup
+### Ollama Setup (Optional but Recommended)
 
-1. **Install Ollama model (optional but recommended):**
-   ```bash
-   ollama pull nomic-embed-text:v1.5
-   ```
+Ollama enables enhanced semantic search with vector embeddings. Without it, the system falls back to text-based search.
 
-2. **Run the server:**
+**Installation:**
+- **macOS/Windows**: Download installer from [ollama.com/download](https://ollama.com/download)
+- **Linux**: `curl -fsSL https://ollama.com/install.sh | sh`
+
+**Setup:**
+```bash
+# Install the embedding model
+ollama pull nomic-embed-text:v1.5
+
+# Verify it's running (should show localhost:11434)
+curl http://localhost:11434/api/tags
+```
+
+**System Requirements:**
+- At least 4GB disk space for Ollama
+- Additional 2-8GB for the embedding model
+- Ollama runs on `http://localhost:11434` by default
+
+### Setup & Installation
+
+1. **Run the server:**
    ```bash
    git clone https://github.com/cunicopia-dev/local-memory-mcp
    cd local-memory-mcp
@@ -394,7 +416,26 @@ python src/postgres_memory_server.py
 
 3. **Connect to Claude Desktop:**
 
-   ### Local Installation (with shell scripts)
+   ### Docker Installation
+   ```json
+   // SQLite with Docker - stores data in your chosen directory
+   "localMemoryMCP-SQLite": {
+     "command": "docker",
+     "args": ["run", "--rm", "-i", "-v", "/path/to/your/memory-data:/app/data", "cunicopia/local-memory-mcp:sqlite"]
+   }
+
+   // PostgreSQL with Docker - stores database in your chosen directory
+   "localMemoryMCP-PostgreSQL": {
+     "command": "docker",
+     "args": ["run", "--rm", "-i", "-v", "/path/to/your/postgres-data:/var/lib/postgresql/data", "cunicopia/local-memory-mcp:postgres"]
+   }
+   ```
+   
+   **Volume Paths:** Replace `/path/to/your/memory-data` and `/path/to/your/postgres-data` with any directory where you want to store your memories (e.g., `~/Documents/memory-data`, `/Users/yourname/my-memories`, etc.)
+
+   ### Local Installation (Alternative - Docker Recommended)
+   
+   **Note:** We recommend using Docker for easier setup and better isolation. Use this method only if you prefer local Python installation or have specific requirements that prevent Docker usage.
    ```json
    // For SQLite implementation
    // Assumes you already installed a local .venv at this location
@@ -418,20 +459,7 @@ python src/postgres_memory_server.py
     }
    ```
 
-   ### Docker Installation
-   ```json
-   // SQLite with Docker - self-contained with file storage
-   "localMemoryMCP-SQLite": {
-     "command": "docker",
-     "args": ["run", "--rm", "-i", "-v", "/path/to/local-memory-mcp/data:/app/data", "cunicopia/local-memory-mcp:sqlite"]
-   }
 
-   // PostgreSQL with Docker - self-contained with PostgreSQL database
-   "localMemoryMCP-PostgreSQL": {
-     "command": "docker",
-     "args": ["run", "--rm", "-i", "-v", "/path/to/local-memory-mcp/postgres_data:/var/lib/postgresql/data", "cunicopia/local-memory-mcp:postgres"]
-   }
-   ```
 
 ## Examples
 
@@ -533,11 +561,11 @@ Docker support is fully functional with self-contained containers! Both SQLite a
 
 ```bash
 # Run pre-built images directly (recommended)
-# SQLite version (stores data in ./data directory)
-docker run --rm -i -v $(pwd)/data:/app/data cunicopia/local-memory-mcp:sqlite
+# SQLite version - replace './data' with your preferred data directory
+docker run --rm -i -v ./data:/app/data cunicopia/local-memory-mcp:sqlite
 
-# PostgreSQL version (includes PostgreSQL database, stores data in ./postgres_data directory)
-docker run --rm -i -v $(pwd)/postgres_data:/var/lib/postgresql/data cunicopia/local-memory-mcp:postgres
+# PostgreSQL version - replace './postgres_data' with your preferred data directory  
+docker run --rm -i -v ./postgres_data:/var/lib/postgresql/data cunicopia/local-memory-mcp:postgres
 ```
 
 **Building from source (optional):**
