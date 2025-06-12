@@ -305,14 +305,56 @@ python src/sqlite_memory_server.py
 
 #### Option 2: PostgreSQL + pgvector (Production, Scalable)
 Best for: Multi-domain memories, production deployments, teams
+This assumes you have set your `.env` file correctly with the postgres username and password. You may need to create the user and its password manually using the psql CLI. 
 
+#### CAUTION: Please go to sql/setup_database.sql and create a more secure user and password, the ones listed are for example purposes only! 
+#### Please protect your data and take your data security seriously. 
+
+For Debian-based systems: 
 ```bash
 # Install PostgreSQL + pgvector
 sudo apt install postgresql postgresql-contrib
-sudo apt install postgresql-15-pgvector  # Adjust version as needed
+sudo apt install postgresql-17-pgvector  # Adjust version as needed
+
+# Change directory to where you downloaded the repo
+cd /path/to/local-memory-mcp
 
 # Set up database
+# PLEASE NOTE: We create a user and basic password here, please change this if you want to host it locally
+psql < sql/create_user.sql
+
 psql -U postgres < sql/setup_database.sql
+
+# Install Python dependencies
+pip install -r requirements.pgvector.txt
+
+# Configure connection (edit .env file)
+cp .env.example .env
+
+# Run server
+python src/postgres_memory_server.py
+```
+
+For MacOS
+```bash
+# Install PostgreSQL and pgvector (Homebrew-based)
+brew install postgresql@17
+brew services start postgresql@17
+
+# Link psql and other tools if needed
+brew link --force postgresql@17
+
+# Install pgvector extension (PostgreSQL must be running)
+# This installs the extension into your local PostgreSQL environment
+brew install pgvector
+
+# OPTIONAL: If pgvector doesn't register properly, you can manually build it
+# git clone --branch v0.8.0 https://github.com/pgvector/pgvector.git
+# cd pgvector
+# make && make install
+
+# Set up database
+psql -U postgres -f sql/setup_database.sql
 
 # Install Python dependencies
 pip install -r requirements.pgvector.txt
