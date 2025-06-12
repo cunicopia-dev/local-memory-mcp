@@ -28,12 +28,13 @@ A production-ready persistent memory system for AI agents using the [Model Conte
 - [Quick Start](#quick-start)
   - [Prerequisites](#prerequisites)
   - [Ollama Setup](#ollama-setup-optional-but-recommended)
-  - [Setup & Installation](#setup--installation)
+- [Claude Desktop Setup](#claude-desktop-setup)
 - [Examples](#examples)
 - [Components](#components)
 - [Configuration](#configuration)
 - [Development](#development)
   - [Docker](#docker)
+- [Manual Installation](#manual-installation)
 - [Demo](#demo)
 - [License](#license)
 
@@ -298,81 +299,24 @@ graph TB
 
 ## Quick Start
 
-### Choose Your Implementation
+🚀 **Recommended: Use Docker for the easiest setup!** Skip all dependency management and get running in seconds.
 
-#### Option 1: SQLite + FAISS (Simple, Local)
-Best for: Personal use, development, simple deployments
+### Option 1: Docker (Recommended) ⭐
 
+**SQLite Version** (simplest):
 ```bash
-pip install -r requirements.sqlite.txt
-python src/sqlite_memory_server.py
+# Run immediately - no setup required!
+docker run --rm -i -v ./memory-data:/app/data cunicopia/local-memory-mcp:sqlite
 ```
 
-#### Option 2: PostgreSQL + pgvector (Production, Scalable)
-Best for: Multi-domain memories, production deployments, teams
-This assumes you have set your `.env` file correctly with the postgres username and password. You may need to create the user and its password manually using the psql CLI. 
-
-#### CAUTION: Please go to sql/create_user.sql and create a more secure user and password, the ones listed are for example purposes only! 
-#### Please protect your data and take your data security seriously. 
-
-For Debian-based systems: 
+**PostgreSQL Version** (with domain segmentation):
 ```bash
-# Install PostgreSQL + pgvector
-sudo apt install postgresql postgresql-contrib
-sudo apt install postgresql-17-pgvector  # Adjust version as needed
-
-# Change directory to where you downloaded the repo
-cd /path/to/local-memory-mcp
-
-# Set up database
-# PLEASE NOTE: We create a user and basic password here, please change this if you want to host it locally
-psql < sql/create_user.sql
-
-psql -U postgres < sql/setup_database.sql
-
-# Install Python dependencies
-pip install -r requirements.pgvector.txt
-
-# Configure connection (edit .env file)
-cp .env.example .env
-
-# Run server
-python src/postgres_memory_server.py
+# Run immediately - includes full PostgreSQL database!
+docker run --rm -i -v ./postgres-data:/var/lib/postgresql/data cunicopia/local-memory-mcp:postgres
 ```
 
-For MacOS
-```bash
-# Install PostgreSQL and pgvector (Homebrew-based)
-brew install postgresql@17
-brew services start postgresql@17
+That's it! The containers are self-contained and handle all dependencies automatically.
 
-# Link psql and other tools if needed
-brew link --force postgresql@17
-
-# Install pgvector extension (PostgreSQL must be running)
-# This installs the extension into your local PostgreSQL environment
-brew install pgvector
-
-# OPTIONAL: If pgvector doesn't register properly, you can manually build it
-# git clone --branch v0.8.0 https://github.com/pgvector/pgvector.git
-# cd pgvector
-# make && make install
-
-# PLEASE NOTE: We create a user and basic password here, please change this if you want to host it locally
-psql < sql/create_user.sql
-
-# Set up database
-psql -U postgres -f sql/setup_database.sql
-
-# Install Python dependencies
-pip install -r requirements.pgvector.txt
-
-# Configure connection (edit .env file)
-cp .env.example .env
-
-# Run server
-python src/postgres_memory_server.py
-```
 
 ### Prerequisites
 - Docker (for containerized deployment) or Python 3.12+ (for local installation)
@@ -402,62 +346,43 @@ curl http://localhost:11434/api/tags
 
 ### Setup & Installation
 
-1. **Run the server:**
-   ```bash
-   git clone https://github.com/cunicopia-dev/local-memory-mcp
-   cd local-memory-mcp
-   
-   # For SQLite implementation
-   ./run_sqlite.sh
-   
-   # For PostgreSQL implementation  
-   ./run_postgres.sh
-   ```
+## Claude Desktop Setup
 
-3. **Connect to Claude Desktop:**
+Once you have the Docker containers ready (or local installation), connect to Claude Desktop by adding this to your MCP settings:
 
-   ### Docker Installation
-   ```json
-   // SQLite with Docker - stores data in your chosen directory
-   "localMemoryMCP-SQLite": {
-     "command": "docker",
-     "args": ["run", "--rm", "-i", "-v", "/path/to/your/memory-data:/app/data", "cunicopia/local-memory-mcp:sqlite"]
-   }
-
-   // PostgreSQL with Docker - stores database in your chosen directory
-   "localMemoryMCP-PostgreSQL": {
-     "command": "docker",
-     "args": ["run", "--rm", "-i", "-v", "/path/to/your/postgres-data:/var/lib/postgresql/data", "cunicopia/local-memory-mcp:postgres"]
-   }
-   ```
-   
-   **Volume Paths:** Replace `/path/to/your/memory-data` and `/path/to/your/postgres-data` with any directory where you want to store your memories (e.g., `~/Documents/memory-data`, `/Users/yourname/my-memories`, etc.)
-
-   ### Local Installation (Alternative - Docker Recommended)
-   
-   **Note:** We recommend using Docker for easier setup and better isolation. Use this method only if you prefer local Python installation or have specific requirements that prevent Docker usage.
-   ```json
-   // For SQLite implementation
-   // Assumes you already installed a local .venv at this location
-   "localMemoryMCP": {
-     "command": "bash",
-     "args": ["/path/to/local-memory-mcp/run_sqlite.sh"]
+### Docker Configuration (Recommended)
+```json
+{
+  "mcpServers": {
+    "localMemoryMCP-SQLite": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "-v", "/path/to/your/memory-data:/app/data", "cunicopia/local-memory-mcp:sqlite"]
+    },
+    
+    "localMemoryMCP-PostgreSQL": {
+      "command": "docker", 
+      "args": ["run", "--rm", "-i", "-v", "/path/to/your/postgres-data:/var/lib/postgresql/data", "cunicopia/local-memory-mcp:postgres"]
     }
-   
-   // For PostgreSQL implementation
-   // Assumes you already installed a local .venv at this location
-   "localMemoryMCP": {
-     "command": "bash", 
-     "args": ["/path/to/local-memory-mcp/run_postgres.sh"]
-   }
+  }
+}
+```
 
-   // WSL 
-   // Assumes you already installed a local .venv at this location
+**Volume Paths:** Replace `/path/to/your/memory-data` and `/path/to/your/postgres-data` with any directory where you want to store your memories (e.g., `~/Documents/memory-data`, `/Users/yourname/my-memories`, etc.)
+
+### Local Installation Configuration (Alternative)
+
+**Note:** Only use if you cannot use Docker. Requires manual setup first (see [Manual Installation](#manual-installation)).
+
+```json
+{
+  "mcpServers": {
     "localMemoryMCP": {
-      "command": "wsl.exe",
-      "args": ["cd", "/path/to/local-memory-mcp", "&&", "bash", "run_postgres.sh"]
+      "command": "bash",
+      "args": ["/path/to/local-memory-mcp/run_sqlite.sh"]
     }
-   ```
+  }
+}
+```
 
 
 
@@ -574,6 +499,80 @@ docker run --rm -i -v ./postgres_data:/var/lib/postgresql/data cunicopia/local-m
 docker build -f Dockerfile.sqlite_version -t local-memory-mcp:sqlite_version .
 docker build -f Dockerfile.postgres_version -t local-memory-mcp:postgres_version .
 ```
+
+## Manual Installation
+
+⚠️ **We strongly recommend using Docker instead** - it handles all dependencies automatically. Use this section only if Docker is not available or you have specific requirements.
+
+### SQLite + FAISS (Simple, Local)
+```bash
+git clone https://github.com/cunicopia-dev/local-memory-mcp
+cd local-memory-mcp
+pip install -r requirements.sqlite.txt
+python src/sqlite_memory_server.py
+```
+
+### PostgreSQL + pgvector (Production, Scalable)
+
+**For Debian-based systems:**
+```bash
+# Install PostgreSQL + pgvector
+sudo apt install postgresql postgresql-contrib
+sudo apt install postgresql-17-pgvector  # Adjust version as needed
+
+# Change directory to where you downloaded the repo
+cd /path/to/local-memory-mcp
+
+# Set up database
+# PLEASE NOTE: We create a user and basic password here, please change this if you want to host it locally
+psql < sql/create_user.sql
+psql -U postgres < sql/setup_database.sql
+
+# Install Python dependencies
+pip install -r requirements.pgvector.txt
+
+# Configure connection (edit .env file)
+cp .env.example .env
+
+# Run server
+python src/postgres_memory_server.py
+```
+
+**For macOS:**
+```bash
+# Install PostgreSQL and pgvector (Homebrew-based)
+brew install postgresql@17
+brew services start postgresql@17
+
+# Link psql and other tools if needed
+brew link --force postgresql@17
+
+# Install pgvector extension (PostgreSQL must be running)
+# This installs the extension into your local PostgreSQL environment
+brew install pgvector
+
+# OPTIONAL: If pgvector doesn't register properly, you can manually build it
+# git clone --branch v0.8.0 https://github.com/pgvector/pgvector.git
+# cd pgvector
+# make && make install
+
+# PLEASE NOTE: We create a user and basic password here, please change this if you want to host it locally
+psql < sql/create_user.sql
+
+# Set up database
+psql -U postgres -f sql/setup_database.sql
+
+# Install Python dependencies
+pip install -r requirements.pgvector.txt
+
+# Configure connection (edit .env file)
+cp .env.example .env
+
+# Run server
+python src/postgres_memory_server.py
+```
+
+**⚠️ SECURITY CAUTION:** Please go to sql/create_user.sql and create a more secure user and password, the ones listed are for example purposes only! Please protect your data and take your data security seriously.
 
 ## License
 
