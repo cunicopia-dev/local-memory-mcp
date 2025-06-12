@@ -1,0 +1,33 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.pgvector.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application code
+COPY src/ src/
+COPY sql/ sql/
+COPY docs/ docs/
+COPY README.md .
+COPY .env.example .env.example
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV OLLAMA_API_URL=http://host.docker.internal:11434
+ENV OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+
+# Default PostgreSQL connection (can be overridden)
+ENV POSTGRES_HOST=host.docker.internal
+ENV POSTGRES_PORT=5432
+ENV POSTGRES_DB=postgres
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+ENV DEFAULT_MEMORY_DOMAIN=default
+
+# Expose the MCP server port
+EXPOSE 6274
+
+# Run the PostgreSQL memory server using FastMCP CLI with streamable-http transport
+CMD ["fastmcp", "run", "src/postgres_memory_server.py", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "6274"]
