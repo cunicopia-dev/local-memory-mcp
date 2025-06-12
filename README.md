@@ -339,8 +339,6 @@ ollama pull nomic-embed-text:v1.5
 curl http://localhost:11434/api/tags
 ```
 
-### Setup & Installation
-
 ## Claude Desktop Setup
 
 Once you have the Docker containers ready (or local installation), connect to Claude Desktop by adding this to your MCP settings:
