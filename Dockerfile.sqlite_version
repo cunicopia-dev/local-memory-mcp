@@ -26,8 +26,5 @@ ENV MCP_DATA_DIR=/app/data
 ENV OLLAMA_API_URL=http://host.docker.internal:11434
 ENV OLLAMA_EMBEDDING_MODEL=nomic-embed-text
 
-# Expose the MCP server port
-EXPOSE 6274
-
-# Run the SQLite memory server using FastMCP CLI with streamable-http transport
-CMD ["fastmcp", "run", "src/sqlite_memory_server.py", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "6274"]
+# Run the SQLite memory server using stdio transport (for Claude Desktop integration)
+CMD ["python3", "src/sqlite_memory_server.py"]
