@@ -16,7 +16,6 @@ A production-ready persistent memory system for AI agents using the [Model Conte
 ## Table of Contents
 
 - [Why This Matters](#why-this-matters)
-- [Design Principles](#design-principles)
 - [Choose Your Implementation](#choose-your-implementation)
 - [Tools & Capabilities](#tools--capabilities)
   - [Available Tools](#available-tools)
@@ -43,20 +42,6 @@ A production-ready persistent memory system for AI agents using the [Model Conte
 - 🏢 **Organizes by domain** - Separate contexts for work, health, personal life (PostgreSQL)
 - 🔒 **Stays private** - All data stored locally under your control
 - ⚡ **Works immediately** - Drop-in compatibility with Claude Desktop and MCP clients
-
-### Design Principles
-
-- **Modularity First**  
-  Components are decoupled for easy extension and substitution
-
-- **Local-First**  
-  Your data stays on your machine unless you choose otherwise
-
-- **MCP-Native**  
-  Built with interoperability and future agent compatibility in mind
-
-- **Zero External Dependencies**  
-  No SaaS or cloud lock-in
 
 ## Choose Your Implementation
 
