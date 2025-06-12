@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
-COPY requirements.txt .
+COPY requirements.sqlite.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code
@@ -29,5 +29,5 @@ ENV OLLAMA_EMBEDDING_MODEL=nomic-embed-text
 # Expose the MCP server port
 EXPOSE 6274
 
-# Run the memory server using FastMCP CLI with streamable-http transport
-CMD ["fastmcp", "run", "src/memory_server.py", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "6274"]
+# Run the SQLite memory server using FastMCP CLI with streamable-http transport
+CMD ["fastmcp", "run", "src/sqlite_memory_server.py", "--transport", "streamable-http", "--host", "0.0.0.0", "--port", "6274"]
