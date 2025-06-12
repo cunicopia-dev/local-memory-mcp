@@ -21,7 +21,7 @@ A production-ready persistent memory system for AI agents using the [Model Conte
   - [Available Tools](#available-tools)
   - [Available Resources](#available-resources)
   - [Available Prompts](#available-prompts)
-- [Architectures](#architectures)
+- [Architecture Diagrams](#architectures)
   - [SQLite + FAISS Implementation](#sqlite--faiss-implementation-original)
   - [PostgreSQL + pgvector Implementation](#postgresql--pgvector-implementation-new)
 - [Features](#features)
@@ -468,12 +468,13 @@ python src/postgres_memory_server.py
 ### Docker
 ```bash
 # SQLite version
-docker build -f Dockerfile.sqlite -t local-memory-mcp:sqlite .
-docker run -p 6274:6274 -v $(pwd)/data:/app/data local-memory-mcp:sqlite
+docker build -f Dockerfile.sqlite_version -t local-memory-mcp:sqlite_version .
+docker run -p 6274:6274 -v $(pwd)/data:/app/data local-memory-mcp:sqlite_version
 
-# PostgreSQL version  
-docker build -f Dockerfile.postgres -t local-memory-mcp:postgres .
-docker run -p 6274:6274 --env-file .env local-memory-mcp:postgres
+# PostgreSQL version
+# You likely will need to tweak the --env-file variable to get it to work, will fix soon  
+docker build -f Dockerfile.postgres_version -t local-memory-mcp:postgres_version .
+docker run -p 6274:6274 --env-file .env local-memory-mcp:postgres_version
 ```
 
 ## License
