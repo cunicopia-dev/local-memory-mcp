@@ -339,11 +339,6 @@ ollama pull nomic-embed-text:v1.5
 curl http://localhost:11434/api/tags
 ```
 
-**System Requirements:**
-- At least 4GB disk space for Ollama
-- Additional 2-8GB for the embedding model
-- Ollama runs on `http://localhost:11434` by default
-
 ### Setup & Installation
 
 ## Claude Desktop Setup
