@@ -1,5 +1,6 @@
 from fastmcp import FastMCP
 import os
+import sys
 import time
 from typing import List, Dict, Any, Optional
 from postgres_memory_api import PostgresMemoryAPI
@@ -15,6 +16,7 @@ mcp = FastMCP(name=server_name)
 ollama_available = False
 ollama_url = os.environ.get("OLLAMA_API_URL", "http://localhost:11434")
 embedding_model = os.environ.get("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
+keep_alive = os.environ.get("OLLAMA_KEEP_ALIVE", "10m")  # Keep model in memory for 10 minutes by default
 ollama_embeddings = None
 
 try:
@@ -28,14 +30,15 @@ try:
             ollama_available = True
             ollama_embeddings = OllamaEmbeddings(
                 model_name=embedding_model,
-                base_url=ollama_url
+                base_url=ollama_url,
+                keep_alive=keep_alive
             )
         else:
-            print(f"Ollama found but embedding model {embedding_model} not available, using text search only")
+            print(f"Ollama found but embedding model {embedding_model} not available, using text search only", file=sys.stderr)
     else:
-        print("Ollama API returned error, using text search only")
+        print("Ollama API returned error, using text search only", file=sys.stderr)
 except Exception as e:
-    print(f"Ollama check failed: {e}, using text search only")
+    print(f"Ollama check failed: {e}, using text search only", file=sys.stderr)
 
 # Initialize the PostgreSQL memory API
 memory_api = PostgresMemoryAPI(ollama_embeddings=ollama_embeddings)
