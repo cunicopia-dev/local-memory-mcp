@@ -3,11 +3,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-
+.vscode/
+.claude/
 data/
+postgres_data/
+.DS_Store
 *.db 
 *.sqlite3
 *.so
+
+faiss_*
 
 # Distribution / packaging
 .Python
