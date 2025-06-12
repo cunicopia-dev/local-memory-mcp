@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-green.svg)](https://modelcontextprotocol.io/)  
-[![Docker Support](https://img.shields.io/badge/Docker-Support%3A%20Coming%20Soon-orange.svg)](https://www.docker.com/)
+[![Docker Support](https://img.shields.io/badge/Docker-Supported-green.svg)](https://www.docker.com/)
 
 Ever wanted the ChatGPT memory feature but **across all your LLMs** and stored on **your own hardware**? Ever hate how there's a **limit to how many memories** ChatGPT can store, and that you **can't segment your memories** into different domains? 
 
@@ -26,9 +26,14 @@ A production-ready persistent memory system for AI agents using the [Model Conte
   - [PostgreSQL + pgvector Implementation](#postgresql--pgvector-implementation-new)
 - [Features](#features)
 - [Quick Start](#quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Ollama Setup](#ollama-setup-optional-but-recommended)
+  - [Setup & Installation](#setup--installation)
+- [Examples](#examples)
 - [Components](#components)
 - [Configuration](#configuration)
 - [Development](#development)
+  - [Docker](#docker)
 - [Demo](#demo)
 - [License](#license)
 
@@ -277,7 +282,7 @@ graph TB
 - **Semantic Search**: Uses Ollama embeddings for intelligent memory retrieval
 - **Smart Chunking**: Automatically breaks down long text for better search results  
 - **MCP Standard**: Full MCP protocol compliance for Claude Desktop integration
-- **Docker Ready**: (*COMING SOON - not quite running yet*) Simple containerized deployment
+- **Docker Ready**: Simple containerized deployment with self-contained images
 - **Fallback Search**: Automatic fallback to text search when vector search unavailable
 
 ### SQLite + FAISS Specific
@@ -370,17 +375,34 @@ python src/postgres_memory_server.py
 ```
 
 ### Prerequisites
-- Docker (COMING SOON - Docker not running quite yet)
-- Ollama with `nomic-embed-text` model (optional but recommended)
+- Docker (for containerized deployment) or Python 3.12+ (for local installation)
+- Ollama with `nomic-embed-text` model (optional but recommended for enhanced semantic search)
 
-### Setup
+### Ollama Setup (Optional but Recommended)
 
-1. **Install Ollama model (optional but recommended):**
-   ```bash
-   ollama pull nomic-embed-text:v1.5
-   ```
+Ollama enables enhanced semantic search with vector embeddings. Without it, the system falls back to text-based search.
 
-2. **Run the server:**
+**Installation:**
+- **macOS/Windows**: Download installer from [ollama.com/download](https://ollama.com/download)
+- **Linux**: `curl -fsSL https://ollama.com/install.sh | sh`
+
+**Setup:**
+```bash
+# Install the embedding model
+ollama pull nomic-embed-text:v1.5
+
+# Verify it's running (should show localhost:11434)
+curl http://localhost:11434/api/tags
+```
+
+**System Requirements:**
+- At least 4GB disk space for Ollama
+- Additional 2-8GB for the embedding model
+- Ollama runs on `http://localhost:11434` by default
+
+### Setup & Installation
+
+1. **Run the server:**
    ```bash
    git clone https://github.com/cunicopia-dev/local-memory-mcp
    cd local-memory-mcp
@@ -393,6 +415,27 @@ python src/postgres_memory_server.py
    ```
 
 3. **Connect to Claude Desktop:**
+
+   ### Docker Installation
+   ```json
+   // SQLite with Docker - stores data in your chosen directory
+   "localMemoryMCP-SQLite": {
+     "command": "docker",
+     "args": ["run", "--rm", "-i", "-v", "/path/to/your/memory-data:/app/data", "cunicopia/local-memory-mcp:sqlite"]
+   }
+
+   // PostgreSQL with Docker - stores database in your chosen directory
+   "localMemoryMCP-PostgreSQL": {
+     "command": "docker",
+     "args": ["run", "--rm", "-i", "-v", "/path/to/your/postgres-data:/var/lib/postgresql/data", "cunicopia/local-memory-mcp:postgres"]
+   }
+   ```
+   
+   **Volume Paths:** Replace `/path/to/your/memory-data` and `/path/to/your/postgres-data` with any directory where you want to store your memories (e.g., `~/Documents/memory-data`, `/Users/yourname/my-memories`, etc.)
+
+   ### Local Installation (Alternative - Docker Recommended)
+   
+   **Note:** We recommend using Docker for easier setup and better isolation. Use this method only if you prefer local Python installation or have specific requirements that prevent Docker usage.
    ```json
    // For SQLite implementation
    // Assumes you already installed a local .venv at this location
@@ -415,6 +458,8 @@ python src/postgres_memory_server.py
       "args": ["cd", "/path/to/local-memory-mcp", "&&", "bash", "run_postgres.sh"]
     }
    ```
+
+
 
 ## Examples
 
@@ -510,17 +555,24 @@ pip install -r requirements.pgvector.txt
 python src/postgres_memory_server.py
 ```
 
-### Docker - Coming soon
-Docker is not running quite yet. Run at your own risk. Fix it for me if you have time, otherwise I'll get to it soon.
-```bash
-# SQLite version
-docker build -f Dockerfile.sqlite_version -t local-memory-mcp:sqlite_version .
-docker run -p 6274:6274 -v $(pwd)/data:/app/data local-memory-mcp:sqlite_version
+### Docker
 
-# PostgreSQL version
-# You likely will need to tweak the --env-file variable to get it to work, will fix soon  
+Docker support is fully functional with self-contained containers! Both SQLite and PostgreSQL versions run completely independently.
+
+```bash
+# Run pre-built images directly (recommended)
+# SQLite version - replace './data' with your preferred data directory
+docker run --rm -i -v ./data:/app/data cunicopia/local-memory-mcp:sqlite
+
+# PostgreSQL version - replace './postgres_data' with your preferred data directory  
+docker run --rm -i -v ./postgres_data:/var/lib/postgresql/data cunicopia/local-memory-mcp:postgres
+```
+
+**Building from source (optional):**
+```bash
+# Only needed if you want to build yourself
+docker build -f Dockerfile.sqlite_version -t local-memory-mcp:sqlite_version .
 docker build -f Dockerfile.postgres_version -t local-memory-mcp:postgres_version .
-docker run -p 6274:6274 --env-file .env local-memory-mcp:postgres_version
 ```
 
 ## License
