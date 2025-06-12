@@ -307,7 +307,7 @@ python src/sqlite_memory_server.py
 Best for: Multi-domain memories, production deployments, teams
 This assumes you have set your `.env` file correctly with the postgres username and password. You may need to create the user and its password manually using the psql CLI. 
 
-#### CAUTION: Please go to sql/setup_database.sql and create a more secure user and password, the ones listed are for example purposes only! 
+#### CAUTION: Please go to sql/create_user.sql and create a more secure user and password, the ones listed are for example purposes only! 
 #### Please protect your data and take your data security seriously. 
 
 For Debian-based systems: 
