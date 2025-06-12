@@ -405,7 +405,7 @@ python src/postgres_memory_server.py
    // Assumes you already installed a local .venv at this location
    "localMemoryMCP": {
      "command": "bash", 
-     "args": ["cd", "/path/to/local-memory-mcp", "&&", "bash" "run_postgres.sh"]
+     "args": ["cd", "/path/to/local-memory-mcp", "&&", "bash", "run_postgres.sh"]
    }
 
    // WSL 
