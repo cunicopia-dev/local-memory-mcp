@@ -1,0 +1,7 @@
+# Requirements for PostgreSQL + pgvector implementation
+fastmcp>=0.4.0
+numpy>=1.20.0
+requests>=2.25.0
+psycopg2-binary>=2.9.0
+pgvector>=0.2.0
+python-dotenv>=1.0.0
