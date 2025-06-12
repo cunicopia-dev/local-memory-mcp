@@ -299,9 +299,9 @@ graph TB
 
 ## Quick Start
 
-🚀 **Recommended: Use Docker for the easiest setup!** Skip all dependency management and get running in seconds.
+**Recommended: Use Docker for the easiest setup!** Skip all dependency management and get running in seconds.
 
-### Option 1: Docker (Recommended) ⭐
+### Option 1: Docker (Recommended)
 
 **SQLite Version** (simplest):
 ```bash
