@@ -20,9 +20,6 @@ BEGIN
         )', table_name);
     
     -- Create indexes for performance
-    EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100)', 
-                   table_name || '_embedding_idx', table_name);
-    
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I USING gin (metadata)', 
                    table_name || '_metadata_idx', table_name);
     
