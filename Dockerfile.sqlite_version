@@ -2,20 +2,20 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install dependencies for FAISS
+# Install dependencies for FAISS, then remove build tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
+# Install Python dependencies and clean up build tools
 COPY requirements.sqlite.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+    && apt-get remove -y build-essential \
+    && apt-get autoremove -y \
+    && apt-get clean
 
-# Copy the application code
+# Copy only essential application code
 COPY src/ src/
-COPY docs/ docs/
-COPY README.md .
 
 # Create a volume for persistent storage
 VOLUME /app/data
@@ -24,7 +24,7 @@ VOLUME /app/data
 ENV PYTHONUNBUFFERED=1
 ENV MCP_DATA_DIR=/app/data
 ENV OLLAMA_API_URL=http://host.docker.internal:11434
-ENV OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+ENV OLLAMA_EMBEDDING_MODEL=nomic-embed-text:v1.5
 
 # Run the SQLite memory server using stdio transport (for Claude Desktop integration)
 CMD ["python3", "src/sqlite_memory_server.py"]
