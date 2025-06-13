@@ -62,10 +62,10 @@ class PostgresMemoryAPI:
                 table_name = sql.Identifier(f"{domain}_memories")
                 
                 if embedding:
-                    # Store with embedding
+                    # Store with embedding - convert list to vector
                     query = sql.SQL("""
                         INSERT INTO {} (id, content, embedding, metadata)
-                        VALUES (%s, %s, %s, %s)
+                        VALUES (%s, %s, %s::vector, %s)
                     """).format(table_name)
                     cursor.execute(query, (memory_id, content, embedding, Json(metadata)))
                 else:
@@ -195,7 +195,7 @@ class PostgresMemoryAPI:
                     if embedding:
                         update_query = sql.SQL("""
                             UPDATE {} 
-                            SET content = %s, embedding = %s, metadata = %s, updated_at = NOW()
+                            SET content = %s, embedding = %s::vector, metadata = %s, updated_at = NOW()
                             WHERE id = %s
                         """).format(table_name)
                         cursor.execute(update_query, (content, embedding, Json(metadata), memory_id))
@@ -219,7 +219,7 @@ class PostgresMemoryAPI:
                     if embedding:
                         update_query = sql.SQL("""
                             UPDATE {} 
-                            SET content = %s, embedding = %s, updated_at = NOW()
+                            SET content = %s, embedding = %s::vector, updated_at = NOW()
                             WHERE id = %s
                         """).format(table_name)
                         cursor.execute(update_query, (content, embedding, memory_id))
