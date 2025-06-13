@@ -9,7 +9,7 @@ class OllamaEmbeddings:
                  keep_alive: str = "10m"):
         self.model_name = model_name
         self.base_url = base_url
-        self.api_url = f"{base_url}/api/embed"  # Use newer endpoint
+        self.api_url = f"{base_url}/api/embeddings"
         self.keep_alive = keep_alive
         
         # Create a session for connection pooling

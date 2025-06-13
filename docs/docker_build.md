@@ -41,13 +41,13 @@ Build for both ARM64 (Apple Silicon) and AMD64 (Intel) architectures:
 
 ```bash
 # SQLite version - multi-platform build and push
-docker buildx build --platform linux/amd64,linux/arm64 \
+docker buildx build --platform linux/amd64,linux/arm64 --no-cache \
   -f Dockerfile.sqlite_version \
   -t cunicopia/local-memory-mcp:sqlite \
   --push .
 
 # PostgreSQL version - multi-platform build and push
-docker buildx build --platform linux/amd64,linux/arm64 \
+docker buildx build --platform linux/amd64,linux/arm64 --no-cache \
   -f Dockerfile.postgres_version \
   -t cunicopia/local-memory-mcp:postgres \
   --push .

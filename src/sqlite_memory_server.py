@@ -16,16 +16,16 @@ mcp = FastMCP(name=server_name)
 # Check if Ollama is available
 ollama_available = False
 ollama_url = os.environ.get("OLLAMA_API_URL", "http://localhost:11434")
-embedding_model = os.environ.get("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
+embedding_model = os.environ.get("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text:v1.5")
 
 try:
     import requests
     response = requests.get(f"{ollama_url}/api/tags")
     if response.status_code == 200:
         models = response.json().get("models", [])
-        model_names = [model.get("name", "").split(":")[0] for model in models]
+        model_names = [model.get("name", "") for model in models]
         
-        if embedding_model in model_names or f"{embedding_model}:latest" in model_names:
+        if embedding_model in model_names:
             ollama_available = True
         else:
             # Ollama found but embedding model not available, using text search only
